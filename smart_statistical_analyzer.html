@@ -1,0 +1,582 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a2e;--ink2:#3d3d5c;--ink3:#7a7a99;
+  --bg:#f7f6f2;--bg2:#ffffff;--bg3:#eeecea;
+  --accent:#4f46e5;--accent2:#7c3aed;--accent3:#06b6d4;
+  --gold:#d97706;--rose:#e11d48;--green:#059669;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'Playfair Display',serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;}
+.header{background:var(--ink);color:#fff;padding:2rem 2.5rem 1.5rem;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:linear-gradient(135deg,rgba(79,70,229,0.4),rgba(124,58,237,0.2));pointer-events:none;}
+.header::after{content:'';position:absolute;left:30%;bottom:-40px;width:180px;height:180px;border-radius:50%;background:rgba(6,182,212,0.08);pointer-events:none;}
+.header-tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:.5rem;}
+.header h1{font-family:var(--serif);font-size:2rem;font-weight:600;letter-spacing:-.01em;line-height:1.15;}
+.header h1 span{color:#a5b4fc;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-top:.4rem;max-width:500px;}
+.header-badges{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;}
+.badge{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);letter-spacing:.05em;}
+.main{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 120px);}
+.sidebar{background:var(--bg2);border-right:1px solid var(--bg3);padding:1.5rem 0;}
+.sidebar-section{padding:0 1.25rem;margin-bottom:1.5rem;}
+.sidebar-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:.75rem;padding:0 .25rem;}
+.upload-zone{border:1.5px dashed #c4c4de;border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.upload-zone:hover{border-color:var(--accent);background:#f0f0ff;}
+.upload-zone .uz-icon{font-size:20px;margin-bottom:.4rem;}
+.upload-zone p{font-size:12px;color:var(--ink3);}
+.upload-zone strong{font-size:13px;color:var(--ink2);}
+#fileInput{display:none;}
+.btn-generate{width:100%;background:var(--accent);color:#fff;border:none;padding:.6rem;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;margin-top:.5rem;transition:background .2s;}
+.btn-generate:hover{background:var(--accent2);}
+.nav-list{list-style:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:.55rem 1.5rem;font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;color:var(--ink2);}
+.nav-item:hover{background:var(--bg);color:var(--ink);}
+.nav-item.active{background:var(--bg);border-left-color:var(--accent);color:var(--accent);font-weight:500;}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--bg3);flex-shrink:0;}
+.nav-item.active .nav-dot{background:var(--accent);}
+.nav-item:hover .nav-dot{background:var(--ink3);}
+.content{background:var(--bg);padding:2rem 2.5rem;overflow-y:auto;}
+.panel{display:none;}
+.panel.active{display:block;}
+.panel-title{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--ink);margin-bottom:.3rem;}
+.panel-desc{font-size:13px;color:var(--ink3);margin-bottom:1.5rem;}
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg2);border-radius:10px;padding:1rem 1.1rem;border:0.5px solid var(--bg3);}
+.stat-card .sc-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.4rem;}
+.stat-card .sc-val{font-size:1.4rem;font-weight:500;color:var(--ink);}
+.stat-card .sc-sub{font-size:11px;color:var(--ink3);margin-top:.2rem;}
+.table-wrap{background:var(--bg2);border-radius:10px;border:0.5px solid var(--bg3);overflow:auto;margin-bottom:1.5rem;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{background:var(--ink);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:.6rem .9rem;text-align:left;}
+td{padding:.55rem .9rem;border-bottom:0.5px solid var(--bg3);color:var(--ink2);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+.chart-container{background:var(--bg2);border-radius:12px;border:0.5px solid var(--bg3);padding:1.25rem;margin-bottom:1.5rem;}
+.chart-container h3{font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:1rem;font-family:var(--mono);}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.full-width{grid-column:1/-1;}
+.chart-box{background:var(--bg2);border-radius:10px;border:0.5px solid var(--bg3);padding:1rem;}
+.chart-box h4{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:.75rem;}
+.tabs{display:flex;gap:2px;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:1.25rem;width:fit-content;}
+.tab{padding:.35rem .9rem;border-radius:6px;font-size:12px;cursor:pointer;color:var(--ink3);transition:all .15s;font-family:var(--mono);}
+.tab.active{background:var(--bg2);color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.col-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;}
+.col-pill{padding:.3rem .8rem;border-radius:20px;font-size:12px;font-family:var(--mono);cursor:pointer;border:1px solid var(--bg3);background:var(--bg2);color:var(--ink3);transition:all .15s;}
+.col-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.insight-box{background:linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%);border:1px solid #c7d2fe;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+.insight-box .ib-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6366f1;margin-bottom:.35rem;}
+.insight-box p{font-size:13px;color:#3730a3;line-height:1.6;}
+.hyp-result{background:var(--bg2);border-radius:10px;border:0.5px solid var(--bg3);padding:1.25rem;margin-bottom:.75rem;}
+.hyp-result .hr-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:.4rem;}
+.hyp-result .hr-stat{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-bottom:.2rem;}
+.hyp-result .hr-verdict{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:11px;font-family:var(--mono);margin-top:.5rem;}
+.verdict-sig{background:#dcfce7;color:#166534;}
+.verdict-ns{background:#fef3c7;color:#92400e;}
+.progress-bar{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:.4rem;}
+.progress-fill{height:100%;border-radius:4px;background:var(--accent);}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--ink3);}
+.empty-state .es-icon{font-size:3rem;margin-bottom:1rem;opacity:.4;}
+.empty-state h3{font-family:var(--serif);font-size:1.2rem;color:var(--ink2);margin-bottom:.4rem;}
+.empty-state p{font-size:13px;}
+.reg-output{background:var(--ink);color:#e2e8f0;border-radius:10px;padding:1.25rem;font-family:var(--mono);font-size:12px;line-height:1.8;overflow-x:auto;}
+.reg-output .ro-label{color:#a5b4fc;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
+.scatter-point{cursor:pointer;}
+.no-data-msg{font-size:13px;color:var(--ink3);font-style:italic;padding:.5rem 0;}
+</style>
+
+<div class="header">
+  <div class="header-tag">v2.0 — Data Intelligence Suite</div>
+  <h1><span>Statify</span></h1>
+  <div class="header-sub">Upload your CSV dataset or generate a sample — explore statistics, correlations, distributions, hypothesis tests & regression in one place.</div>
+  <div class="header-badges">
+    <span class="badge">Descriptive Stats</span>
+    <span class="badge">Outlier Detection</span>
+    <span class="badge">Hypothesis Testing</span>
+    <span class="badge">Regression</span>
+    <span class="badge">Correlation</span>
+    <span class="badge">Distribution Fit</span>
+  </div>
+</div>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Dataset</div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="uz-icon">📂</div>
+        <strong id="uploadLabel">Upload CSV File</strong>
+        <p>Click to browse or drag & drop</p>
+      </div>
+      <input type="file" id="fileInput" accept=".csv">
+      <button class="btn-generate" onclick="loadSampleData()">⚡ Use Sample Dataset</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Analysis</div>
+      <ul class="nav-list" id="navList">
+        <li class="nav-item active" data-panel="overview" onclick="showPanel('overview')"><span class="nav-dot"></span>Overview</li>
+        <li class="nav-item" data-panel="stats" onclick="showPanel('stats')"><span class="nav-dot"></span>Basic Statistics</li>
+        <li class="nav-item" data-panel="outliers" onclick="showPanel('outliers')"><span class="nav-dot"></span>Outlier Detection</li>
+        <li class="nav-item" data-panel="viz" onclick="showPanel('viz')"><span class="nav-dot"></span>Visualizations</li>
+        <li class="nav-item" data-panel="corr" onclick="showPanel('corr')"><span class="nav-dot"></span>Correlation</li>
+        <li class="nav-item" data-panel="dist" onclick="showPanel('dist')"><span class="nav-dot"></span>Distribution Fit</li>
+        <li class="nav-item" data-panel="hyp" onclick="showPanel('hyp')"><span class="nav-dot"></span>Hypothesis Tests</li>
+        <li class="nav-item" data-panel="reg" onclick="showPanel('reg')"><span class="nav-dot"></span>Regression</li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Export</div>
+      <button class="btn-generate" style="background:var(--green)" onclick="exportReport()">📄 Export Report</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+      <div class="panel-title">Dataset Overview</div>
+      <div class="panel-desc">Upload a CSV or use the sample dataset to begin analysis.</div>
+      <div id="overviewContent">
+        <div class="empty-state">
+          <div class="es-icon">📊</div>
+          <h3>No dataset loaded</h3>
+          <p>Upload a CSV file or click "Use Sample Dataset" to get started.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div class="panel" id="panel-stats">
+      <div class="panel-title">Basic Statistics</div>
+      <div class="panel-desc">Mean, median, mode, variance, standard deviation, skewness & kurtosis per column.</div>
+      <div id="statsContent"><div class="empty-state"><div class="es-icon">📐</div><h3>Load data first</h3><p>Statistics will appear here after loading a dataset.</p></div></div>
+    </div>
+
+    <!-- OUTLIERS PANEL -->
+    <div class="panel" id="panel-outliers">
+      <div class="panel-title">Outlier Detection</div>
+      <div class="panel-desc">IQR-based outlier detection with fences and flagged values.</div>
+      <div id="outliersContent"><div class="empty-state"><div class="es-icon">🔍</div><h3>Load data first</h3><p>Outlier analysis will appear here.</p></div></div>
+    </div>
+
+    <!-- VIZ PANEL -->
+    <div class="panel" id="panel-viz">
+      <div class="panel-title">Visualizations</div>
+      <div class="panel-desc">Histograms, box plots, scatter plots & KDE for each numeric column.</div>
+      <div id="colSelector" class="col-selector" style="margin-bottom:1rem;"></div>
+      <div id="vizContent"><div class="empty-state"><div class="es-icon">📈</div><h3>Load data first</h3><p>Charts will appear here.</p></div></div>
+    </div>
+
+    <!-- CORRELATION PANEL -->
+    <div class="panel" id="panel-corr">
+      <div class="panel-title">Correlation Analysis</div>
+      <div class="panel-desc">Pearson correlation matrix with significance levels between all numeric pairs.</div>
+      <div id="corrContent"><div class="empty-state"><div class="es-icon">🔗</div><h3>Load data first</h3><p>Correlation heatmap will appear here.</p></div></div>
+    </div>
+
+    <!-- DISTRIBUTION PANEL -->
+    <div class="panel" id="panel-dist">
+      <div class="panel-title">Distribution Fit</div>
+      <div class="panel-desc">Tests normality and fits distributions using Shapiro-Wilk-like checks and histogram overlay.</div>
+      <div id="distContent"><div class="empty-state"><div class="es-icon">🔔</div><h3>Load data first</h3><p>Distribution analysis will appear here.</p></div></div>
+    </div>
+
+    <!-- HYPOTHESIS PANEL -->
+    <div class="panel" id="panel-hyp">
+      <div class="panel-title">Hypothesis Testing</div>
+      <div class="panel-desc">T-test, ANOVA, and Chi-square tests across numeric columns.</div>
+      <div id="hypContent"><div class="empty-state"><div class="es-icon">⚖️</div><h3>Load data first</h3><p>Test results will appear here.</p></div></div>
+    </div>
+
+    <!-- REGRESSION PANEL -->
+    <div class="panel" id="panel-reg">
+      <div class="panel-title">Regression Analysis</div>
+      <div class="panel-desc">OLS simple and multiple regression with R², coefficients and residual plot.</div>
+      <div id="regContent"><div class="empty-state"><div class="es-icon">📉</div><h3>Load data first</h3><p>Regression results will appear here.</p></div></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+let DATA = null, COLS = [], ACTIVE_COL = null, chartInstances = {};
+
+function destroyChart(id){if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}}
+
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.panel===name));
+  if(DATA){
+    if(name==='viz')renderViz();
+    if(name==='corr')renderCorr();
+    if(name==='dist')renderDist();
+    if(name==='hyp')renderHyp();
+    if(name==='reg')renderReg();
+  }
+}
+
+function rnd(v,d=3){return isNaN(v)?'N/A':parseFloat(v.toFixed(d));}
+
+function colMean(col){const v=col.filter(x=>!isNaN(x));return v.reduce((a,b)=>a+b,0)/v.length;}
+function colMedian(col){const s=[...col].sort((a,b)=>a-b),n=s.length;return n%2?s[Math.floor(n/2)]:(s[n/2-1]+s[n/2])/2;}
+function colStd(col){const m=colMean(col),v=col.reduce((a,b)=>a+(b-m)**2,0)/col.length;return Math.sqrt(v);}
+function colVar(col){const m=colMean(col);return col.reduce((a,b)=>a+(b-m)**2,0)/col.length;}
+function colSkew(col){const m=colMean(col),s=colStd(col),n=col.length;return col.reduce((a,b)=>a+((b-m)/s)**3,0)*n/((n-1)*(n-2));}
+function colKurt(col){const m=colMean(col),s=colStd(col),n=col.length;return col.reduce((a,b)=>a+((b-m)/s)**4,0)/n-3;}
+function colMode(col){const freq={};col.forEach(v=>{freq[v]=(freq[v]||0)+1;});return +Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0];}
+function quantile(col,q){const s=[...col].sort((a,b)=>a-b);const pos=(s.length-1)*q;const lo=Math.floor(pos),hi=Math.ceil(pos);return s[lo]+(s[hi]-s[lo])*(pos-lo);}
+
+function getNumCol(name){return DATA.map(r=>parseFloat(r[name])).filter(v=>!isNaN(v));}
+
+function loadSampleData(){
+  const n=60;const rand=(lo,hi)=>Math.round(lo+Math.random()*(hi-lo));
+  DATA=Array.from({length:n},(_,i)=>({
+    Age:rand(22,62),
+    Income:rand(22000,85000),
+    SpendingScore:rand(30,100),
+    Experience:rand(1,25),
+    Satisfaction:parseFloat((2+Math.random()*3).toFixed(1))
+  }));
+  COLS=Object.keys(DATA[0]);
+  document.getElementById('uploadLabel').textContent='sample_dataset.csv';
+  renderAll();
+}
+
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  document.getElementById('uploadLabel').textContent=file.name;
+  Papa.parse(file,{header:true,dynamicTyping:true,complete(res){
+    DATA=res.data.filter(r=>Object.values(r).some(v=>v!==null&&v!==''));
+    COLS=res.meta.fields;
+    renderAll();
+  }});
+});
+
+function renderAll(){
+  renderOverview();renderStats();renderOutliers();
+  ACTIVE_COL=COLS.filter(c=>getNumCol(c).length>0)[0]||null;
+  buildColSelector();
+}
+
+function renderOverview(){
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  const totalCells=DATA.length*COLS.length;
+  const missingCells=DATA.reduce((a,r)=>a+COLS.filter(c=>r[c]===null||r[c]===''||r[c]===undefined||isNaN(parseFloat(r[c]))&&typeof r[c]==='number').length,0);
+  const html=`
+  <div class="cards-row">
+    <div class="stat-card"><div class="sc-label">Rows</div><div class="sc-val">${DATA.length}</div></div>
+    <div class="stat-card"><div class="sc-label">Columns</div><div class="sc-val">${COLS.length}</div></div>
+    <div class="stat-card"><div class="sc-label">Numeric cols</div><div class="sc-val">${numCols.length}</div></div>
+    <div class="stat-card"><div class="sc-label">Missing cells</div><div class="sc-val">${missingCells}</div><div class="sc-sub">${rnd(missingCells/totalCells*100,1)}% of total</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th>${COLS.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${DATA.slice(0,10).map((r,i)=>`<tr><td style="font-family:var(--mono);color:var(--ink3)">${i+1}</td>${COLS.map(c=>`<td>${r[c]??'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div style="font-family:var(--mono);font-size:11px;color:var(--ink3)">Showing first 10 of ${DATA.length} rows</div>`;
+  document.getElementById('overviewContent').innerHTML=html;
+}
+
+function renderStats(){
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  if(!numCols.length){document.getElementById('statsContent').innerHTML='<div class="no-data-msg">No numeric columns found.</div>';return;}
+  const rows=numCols.map(c=>{
+    const col=getNumCol(c);
+    return `<tr>
+      <td style="font-weight:500;font-family:var(--mono)">${c}</td>
+      <td>${col.length}</td>
+      <td>${rnd(colMean(col))}</td>
+      <td>${rnd(colMedian(col))}</td>
+      <td>${rnd(colMode(col))}</td>
+      <td>${rnd(Math.min(...col))}</td>
+      <td>${rnd(Math.max(...col))}</td>
+      <td>${rnd(colStd(col))}</td>
+      <td>${rnd(colVar(col))}</td>
+      <td>${rnd(colSkew(col))}</td>
+      <td>${rnd(colKurt(col))}</td>
+    </tr>`;
+  });
+  document.getElementById('statsContent').innerHTML=`
+  <div class="table-wrap"><table>
+    <thead><tr><th>Column</th><th>Count</th><th>Mean</th><th>Median</th><th>Mode</th><th>Min</th><th>Max</th><th>Std Dev</th><th>Variance</th><th>Skewness</th><th>Kurtosis</th></tr></thead>
+    <tbody>${rows.join('')}</tbody>
+  </table></div>
+  <div class="insight-box"><div class="ib-label">Quick Insights</div><p>${generateInsights(numCols)}</p></div>`;
+}
+
+function generateInsights(numCols){
+  const insights=[];
+  numCols.forEach(c=>{
+    const col=getNumCol(c);const sk=colSkew(col);
+    if(Math.abs(sk)>1)insights.push(`<strong>${c}</strong> shows ${sk>0?'positive (right)':'negative (left)'} skew (${rnd(sk)}) — the distribution is not symmetric.`);
+  });
+  if(!insights.length)insights.push('All numeric columns appear roughly symmetric. Skewness values are within ±1.');
+  return insights.slice(0,3).join(' ');
+}
+
+function renderOutliers(){
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  if(!numCols.length)return;
+  const html=numCols.map(c=>{
+    const col=getNumCol(c);
+    const q1=quantile(col,.25),q3=quantile(col,.75),iqr=q3-q1;
+    const lo=q1-1.5*iqr,hi=q3+1.5*iqr;
+    const outliers=col.filter(v=>v<lo||v>hi);
+    const pct=rnd(outliers.length/col.length*100,1);
+    return `<div class="hyp-result">
+      <div class="hr-title">${c}</div>
+      <div class="hr-stat">Q1: ${rnd(q1)} &nbsp;|&nbsp; Q3: ${rnd(q3)} &nbsp;|&nbsp; IQR: ${rnd(iqr)}</div>
+      <div class="hr-stat">Lower fence: ${rnd(lo)} &nbsp;|&nbsp; Upper fence: ${rnd(hi)}</div>
+      <div class="hr-stat">${outliers.length} outlier${outliers.length!==1?'s':''} (${pct}% of data)</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct*5,100)}%;background:${outliers.length?'var(--rose)':'var(--green)'}"></div></div>
+      <span class="hr-verdict ${outliers.length?'verdict-ns':'verdict-sig'}">${outliers.length?`⚠ ${outliers.length} flagged`:'✓ Clean'}</span>
+      ${outliers.length?`<div style="font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:.4rem">Values: ${outliers.slice(0,8).map(v=>rnd(v)).join(', ')}${outliers.length>8?'...':''}</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('outliersContent').innerHTML=html;
+}
+
+function buildColSelector(){
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  const sel=document.getElementById('colSelector');
+  sel.innerHTML=numCols.map(c=>`<span class="col-pill ${c===ACTIVE_COL?'active':''}" onclick="setActiveCol('${c}')">${c}</span>`).join('');
+}
+
+function setActiveCol(c){ACTIVE_COL=c;buildColSelector();renderViz();}
+
+function renderViz(){
+  if(!DATA||!ACTIVE_COL)return;
+  const col=getNumCol(ACTIVE_COL);
+  const bins=makeBins(col,20);
+  document.getElementById('vizContent').innerHTML=`
+  <div class="chart-grid">
+    <div class="chart-box full-width" style="grid-column:1/-1">
+      <h4>Histogram — ${ACTIVE_COL}</h4>
+      <div style="position:relative;height:220px;"><canvas id="chartHist" role="img" aria-label="Histogram of ${ACTIVE_COL}"></canvas></div>
+    </div>
+    <div class="chart-box"><h4>Box plot — ${ACTIVE_COL}</h4><div style="position:relative;height:200px;"><canvas id="chartBox" role="img" aria-label="Box plot of ${ACTIVE_COL}"></canvas></div></div>
+    <div class="chart-box"><h4>Scatter — index vs value</h4><div style="position:relative;height:200px;"><canvas id="chartScatter" role="img" aria-label="Scatter plot of ${ACTIVE_COL}"></canvas></div></div>
+  </div>`;
+  requestAnimationFrame(()=>{
+    destroyChart('hist');destroyChart('box');destroyChart('scatter');
+    chartInstances['hist']=new Chart(document.getElementById('chartHist'),{type:'bar',data:{labels:bins.labels,datasets:[{label:ACTIVE_COL,data:bins.counts,backgroundColor:'rgba(79,70,229,0.55)',borderColor:'rgba(79,70,229,0.8)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxRotation:45}},y:{ticks:{font:{size:10}}}}}});
+    const q1=quantile(col,.25),med=colMedian(col),q3=quantile(col,.75),iqr=q3-q1,mn=Math.min(...col),mx=Math.max(...col);
+    chartInstances['box']=new Chart(document.getElementById('chartBox'),{type:'bar',data:{labels:['Min','Q1','Median','Q3','Max'],datasets:[{data:[rnd(mn),rnd(q1),rnd(med),rnd(q3),rnd(mx)],backgroundColor:['#a5b4fc','#818cf8','#4f46e5','#818cf8','#a5b4fc'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10}}}}}});
+    const pts=col.map((v,i)=>({x:i,y:v}));
+    chartInstances['scatter']=new Chart(document.getElementById('chartScatter'),{type:'scatter',data:{datasets:[{label:ACTIVE_COL,data:pts,backgroundColor:'rgba(6,182,212,0.5)',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}}}});
+  });
+}
+
+function makeBins(col,n){
+  const mn=Math.min(...col),mx=Math.max(...col),w=(mx-mn)/n;
+  const counts=Array(n).fill(0);const labels=[];
+  col.forEach(v=>{let i=Math.min(Math.floor((v-mn)/w),n-1);counts[i]++;});
+  for(let i=0;i<n;i++)labels.push(rnd(mn+i*w,1));
+  return {labels,counts};
+}
+
+function renderCorr(){
+  if(!DATA)return;
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  if(numCols.length<2){document.getElementById('corrContent').innerHTML='<div class="no-data-msg">Need at least 2 numeric columns.</div>';return;}
+  const matrix=numCols.map(a=>numCols.map(b=>{
+    const ca=getNumCol(a),cb=getNumCol(b);
+    const n=Math.min(ca.length,cb.length);
+    const ma=colMean(ca),mb=colMean(cb);
+    let num=0,da=0,db=0;
+    for(let i=0;i<n;i++){num+=(ca[i]-ma)*(cb[i]-mb);da+=(ca[i]-ma)**2;db+=(cb[i]-mb)**2;}
+    return da&&db?num/Math.sqrt(da*db):0;
+  }));
+  document.getElementById('corrContent').innerHTML=`
+  <div class="chart-container full-width"><h3>Correlation Heatmap</h3><div style="position:relative;height:${numCols.length*60+80}px;"><canvas id="chartCorr" role="img" aria-label="Correlation heatmap"></canvas></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Column A</th><th>Column B</th><th>Correlation (r)</th><th>Strength</th></tr></thead><tbody>
+  ${numCols.flatMap((a,i)=>numCols.slice(i+1).map(b=>{
+    const r=matrix[i][numCols.indexOf(b)];const ar=Math.abs(r);
+    const str=ar>0.8?'Very strong':ar>0.6?'Strong':ar>0.4?'Moderate':ar>0.2?'Weak':'Very weak';
+    const clr=ar>0.6?'var(--rose)':ar>0.4?'var(--gold)':'var(--green)';
+    return `<tr><td style="font-family:var(--mono)">${a}</td><td style="font-family:var(--mono)">${b}</td><td style="font-family:var(--mono);font-weight:500;color:${clr}">${rnd(r)}</td><td>${str}</td></tr>`;
+  })).join('')}
+  </tbody></table></div>`;
+  requestAnimationFrame(()=>{
+    destroyChart('corr');
+    const colors=matrix.map(row=>row.map(v=>{const a=Math.abs(v);if(v>0)return`rgba(79,70,229,${a.toFixed(2)})`;return`rgba(225,29,72,${a.toFixed(2)})`;}));
+    chartInstances['corr']=new Chart(document.getElementById('chartCorr'),{type:'matrix',data:{datasets:[{label:'Correlation',data:numCols.flatMap((a,i)=>numCols.map((b,j)=>({x:b,y:a,v:matrix[i][j]}))),backgroundColor(ctx){const v=ctx.dataset.data[ctx.dataIndex]?.v||0;const a=Math.abs(v);return v>0?`rgba(79,70,229,${a.toFixed(2)})`:`rgba(225,29,72,${a.toFixed(2)})`;},borderColor:'transparent',borderWidth:2,width:({chart})=>(chart.chartArea?.width||200)/numCols.length-2,height:({chart})=>(chart.chartArea?.height||200)/numCols.length-2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label(ctx){const v=ctx.dataset.data[ctx.dataIndex];return`r = ${rnd(v.v)}`;}}}},scales:{x:{type:'category',labels:numCols,ticks:{font:{size:11}}},y:{type:'category',labels:numCols,offset:true,ticks:{font:{size:11}}}}}});
+  });
+}
+
+function renderDist(){
+  if(!DATA)return;
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  const html=numCols.map((c,idx)=>{
+    const col=getNumCol(c);
+    const m=colMean(col),s=colStd(col),sk=colSkew(col),ku=colKurt(col);
+    const isNorm=Math.abs(sk)<0.5&&Math.abs(ku)<1;
+    return `<div class="chart-container">
+      <h3>${c} — Distribution Analysis</h3>
+      <div class="cards-row">
+        <div class="stat-card"><div class="sc-label">Mean</div><div class="sc-val">${rnd(m)}</div></div>
+        <div class="stat-card"><div class="sc-label">Std Dev</div><div class="sc-val">${rnd(s)}</div></div>
+        <div class="stat-card"><div class="sc-label">Skewness</div><div class="sc-val">${rnd(sk)}</div></div>
+        <div class="stat-card"><div class="sc-label">Kurtosis</div><div class="sc-val">${rnd(ku)}</div></div>
+      </div>
+      <div style="position:relative;height:220px;margin-top:.75rem;"><canvas id="distChart${idx}" role="img" aria-label="Distribution chart for ${c}"></canvas></div>
+      <span class="hr-verdict ${isNorm?'verdict-sig':'verdict-ns'}" style="margin-top:.75rem;display:inline-block">${isNorm?'✓ Approximately normal':'⚠ Non-normal distribution'}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('distContent').innerHTML=html;
+  requestAnimationFrame(()=>{
+    numCols.forEach((c,idx)=>{
+      const col=getNumCol(c);const bins=makeBins(col,15);
+      const m=colMean(col),s=colStd(col);
+      const xmin=Math.min(...col),xmax=Math.max(...col);
+      const normLine=bins.labels.map(x=>normalPDF(parseFloat(x),m,s)*col.length*(xmax-xmin)/15);
+      destroyChart('dist'+idx);
+      chartInstances['dist'+idx]=new Chart(document.getElementById('distChart'+idx),{type:'bar',data:{labels:bins.labels,datasets:[{type:'bar',label:'Frequency',data:bins.counts,backgroundColor:'rgba(79,70,229,0.45)',borderColor:'rgba(79,70,229,0.7)',borderWidth:1,borderRadius:3},{type:'line',label:'Normal fit',data:normLine,borderColor:'rgba(217,119,6,0.9)',borderWidth:2,pointRadius:0,fill:false,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxRotation:45}},y:{ticks:{font:{size:10}}}}}});
+    });
+  });
+}
+
+function normalPDF(x,m,s){return(1/(s*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-m)/s)**2);}
+
+function renderHyp(){
+  if(!DATA)return;
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  if(numCols.length<2){document.getElementById('hypContent').innerHTML='<div class="no-data-msg">Need at least 2 numeric columns.</div>';return;}
+  const results=[];
+  for(let i=0;i<numCols.length-1;i++){
+    for(let j=i+1;j<numCols.length;j++){
+      const a=getNumCol(numCols[i]),b=getNumCol(numCols[j]);
+      const t=ttest2(a,b);
+      results.push({a:numCols[i],b:numCols[j],t:t.t,p:t.p,sig:t.p<0.05});
+    }
+  }
+  const anova=doAnova(numCols.map(c=>getNumCol(c)));
+  const chi=chiSquare([10,20,30],[15,15,30]);
+  document.getElementById('hypContent').innerHTML=`
+  <div class="insight-box"><div class="ib-label">About these tests</div><p>Two-sample t-tests compare means between column pairs. ANOVA tests if any column means differ significantly. Chi-square tests independence in categorical data.</p></div>
+  <div style="margin-bottom:.75rem;font-family:var(--mono);font-size:11px;color:var(--ink3)">T-tests between column pairs</div>
+  ${results.map(r=>`<div class="hyp-result">
+    <div class="hr-title">${r.a} vs ${r.b}</div>
+    <div class="hr-stat">t-statistic: ${rnd(r.t)}</div>
+    <div class="hr-stat">p-value: ${rnd(r.p,4)}</div>
+    <span class="hr-verdict ${r.sig?'verdict-sig':'verdict-ns'}">${r.sig?'✓ Significant (p < 0.05)':'✗ Not significant (p ≥ 0.05)'}</span>
+  </div>`).join('')}
+  <div style="margin:.75rem 0;font-family:var(--mono);font-size:11px;color:var(--ink3)">One-way ANOVA</div>
+  <div class="hyp-result">
+    <div class="hr-title">All numeric columns</div>
+    <div class="hr-stat">F-statistic: ${rnd(anova.F)}</div>
+    <div class="hr-stat">p-value: ${rnd(anova.p,4)}</div>
+    <span class="hr-verdict ${anova.p<0.05?'verdict-sig':'verdict-ns'}">${anova.p<0.05?'✓ Significant group differences':'✗ No significant difference'}</span>
+  </div>
+  <div style="margin:.75rem 0;font-family:var(--mono);font-size:11px;color:var(--ink3)">Chi-Square test (sample: [10,20,30] vs expected [15,15,30])</div>
+  <div class="hyp-result">
+    <div class="hr-title">Goodness of fit</div>
+    <div class="hr-stat">χ² = ${rnd(chi.chi)}</div>
+    <div class="hr-stat">p-value: ${rnd(chi.p,4)}</div>
+    <span class="hr-verdict ${chi.p<0.05?'verdict-sig':'verdict-ns'}">${chi.p<0.05?'✓ Significant':'✗ Not significant'}</span>
+  </div>`;
+}
+
+function ttest2(a,b){
+  const na=a.length,nb=b.length,ma=colMean(a),mb=colMean(b);
+  const va=colVar(a),vb=colVar(b);
+  const se=Math.sqrt(va/na+vb/nb);
+  const t=(ma-mb)/se;
+  const df=na+nb-2;
+  const p=2*(1-tCDF(Math.abs(t),df));
+  return{t,p};
+}
+
+function tCDF(t,df){
+  const x=df/(df+t*t);let ib=0,a=df/2,b=0.5;
+  for(let i=0;i<200;i++){ib+=Math.pow(x,a+i)*Math.pow(1-x,b)/(a+i)/betaFn(a,b);}
+  return Math.min(1,Math.max(0,ib));
+}
+
+function betaFn(a,b){return Math.exp(lgamma(a)+lgamma(b)-lgamma(a+b));}
+function lgamma(z){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.001208650973866179,-5.395239384953e-6];let x=z,y=z,tmp=x+5.5;tmp=(x+0.5)*Math.log(tmp)-tmp;let ser=1.000000000190015;for(let j=0;j<6;j++)ser+=c[j]/++y;return tmp+Math.log(2.5066282746310005*ser/x);}
+
+function doAnova(groups){
+  const all=groups.flat(),gm=colMean(all),k=groups.length;
+  const sst=all.reduce((a,v)=>a+(v-gm)**2,0);
+  const ssb=groups.reduce((a,g)=>a+g.length*(colMean(g)-gm)**2,0);
+  const ssw=sst-ssb;
+  const dfb=k-1,dfw=all.length-k;
+  const msb=ssb/dfb,msw=ssw/dfw;
+  const F=msb/msw;
+  const p=Math.max(0,1-fCDF(F,dfb,dfw));
+  return{F,p};
+}
+
+function fCDF(x,d1,d2){const v=d1*x/(d1*x+d2);return betaInc(v,d1/2,d2/2);}
+function betaInc(x,a,b){let bt=0;for(let i=0;i<50;i++)bt+=Math.pow(x,a+i)*Math.pow(1-x,b)/(a+i)/betaFn(a,b);return Math.min(1,Math.max(0,bt));}
+
+function chiSquare(obs,exp){const chi=obs.reduce((a,o,i)=>a+(o-exp[i])**2/exp[i],0);const df=obs.length-1;const p=1-chi2CDF(chi,df);return{chi,p};}
+function chi2CDF(x,k){let s=0,t=Math.exp(-x/2),n=x/2;for(let i=0;i<k/2;i++){s+=t;t*=n/(i+1);}return Math.min(1,s);}
+
+function renderReg(){
+  if(!DATA)return;
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  if(numCols.length<2){document.getElementById('regContent').innerHTML='<div class="no-data-msg">Need at least 2 numeric columns.</div>';return;}
+  const xc=numCols[0],yc=numCols[1];
+  const x=getNumCol(xc),y=getNumCol(yc);
+  const n=Math.min(x.length,y.length),xs=x.slice(0,n),ys=y.slice(0,n);
+  const mx=colMean(xs),my=colMean(ys);
+  let num=0,den=0;xs.forEach((v,i)=>{num+=(v-mx)*(ys[i]-my);den+=(v-mx)**2;});
+  const b1=num/den,b0=my-b1*mx;
+  const ypred=xs.map(v=>b0+b1*v);
+  const ss_res=ys.reduce((a,v,i)=>a+(v-ypred[i])**2,0);
+  const ss_tot=ys.reduce((a,v)=>a+(v-my)**2,0);
+  const r2=1-ss_res/ss_tot,r=Math.sqrt(Math.abs(r2))*(b1>=0?1:-1);
+  const resid=ys.map((v,i)=>v-ypred[i]);
+  document.getElementById('regContent').innerHTML=`
+  <div class="cards-row">
+    <div class="stat-card"><div class="sc-label">R²</div><div class="sc-val">${rnd(r2)}</div><div class="sc-sub">Explained variance</div></div>
+    <div class="stat-card"><div class="sc-label">Intercept (β₀)</div><div class="sc-val">${rnd(b0)}</div></div>
+    <div class="stat-card"><div class="sc-label">Slope (β₁)</div><div class="sc-val">${rnd(b1)}</div></div>
+    <div class="stat-card"><div class="sc-label">Pearson r</div><div class="sc-val">${rnd(r)}</div></div>
+  </div>
+  <div class="reg-output">
+    <div class="ro-label">OLS Regression Summary</div>
+    <div>Dependent variable: ${yc}</div>
+    <div>Independent variable: ${xc}</div>
+    <div>Observations: ${n}</div>
+    <div>─────────────────────────────</div>
+    <div>Equation: ${yc} = ${rnd(b0)} + ${rnd(b1)} × ${xc}</div>
+    <div>R-squared: ${rnd(r2,4)}</div>
+    <div>Adj. R-squared: ${rnd(1-(1-r2)*(n-1)/(n-2),4)}</div>
+    <div>─────────────────────────────</div>
+    <div>Interpretation: ${Math.abs(r2)>0.7?'Strong fit':'Math.abs(r2)>0.4?Moderate fit:Weak fit'}</div>
+  </div>
+  <div class="chart-grid" style="margin-top:1rem">
+    <div class="chart-box"><h4>Scatter + regression line</h4><div style="position:relative;height:220px;"><canvas id="regChart" role="img" aria-label="Regression scatter plot"></canvas></div></div>
+    <div class="chart-box"><h4>Residuals vs fitted</h4><div style="position:relative;height:220px;"><canvas id="residChart" role="img" aria-label="Residuals plot"></canvas></div></div>
+  </div>`;
+  requestAnimationFrame(()=>{
+    destroyChart('reg');destroyChart('resid');
+    const regLine=[{x:Math.min(...xs),y:b0+b1*Math.min(...xs)},{x:Math.max(...xs),y:b0+b1*Math.max(...xs)}];
+    chartInstances['reg']=new Chart(document.getElementById('regChart'),{type:'scatter',data:{datasets:[{label:'Data',data:xs.map((v,i)=>({x:v,y:ys[i]})),backgroundColor:'rgba(79,70,229,0.45)',pointRadius:4},{type:'line',label:'Regression',data:regLine,borderColor:'rgba(217,119,6,.9)',borderWidth:2,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:xc,font:{size:11}},ticks:{font:{size:10}}},y:{title:{display:true,text:yc,font:{size:11}},ticks:{font:{size:10}}}}}});
+    chartInstances['resid']=new Chart(document.getElementById('residChart'),{type:'scatter',data:{datasets:[{label:'Residuals',data:ypred.map((v,i)=>({x:v,y:resid[i]})),backgroundColor:'rgba(6,182,212,0.5)',pointRadius:4},{type:'line',data:[{x:Math.min(...ypred),y:0},{x:Math.max(...ypred),y:0}],borderColor:'rgba(225,29,72,.5)',borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Fitted values',font:{size:11}},ticks:{font:{size:10}}},y:{title:{display:true,text:'Residuals',font:{size:11}},ticks:{font:{size:10}}}}}});
+  });
+}
+
+function exportReport(){
+  if(!DATA){alert('Load data first!');return;}
+  const numCols=COLS.filter(c=>getNumCol(c).length>0);
+  let txt=`SMART STATISTICAL ANALYZER — REPORT\n${'='.repeat(50)}\nGenerated: ${new Date().toLocaleString()}\n\nDATASET SUMMARY\nRows: ${DATA.length}\nColumns: ${COLS.length}\nNumeric Columns: ${numCols.length}\n\n`;
+  numCols.forEach(c=>{
+    const col=getNumCol(c);
+    txt+=`${c.toUpperCase()}\n${'-'.repeat(30)}\nCount: ${col.length}\nMean: ${rnd(colMean(col))}\nMedian: ${rnd(colMedian(col))}\nStd Dev: ${rnd(colStd(col))}\nSkewness: ${rnd(colSkew(col))}\nKurtosis: ${rnd(colKurt(col))}\n\n`;
+  });
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`stats_report_${Date.now()}.txt`;a.click();
+}
+
+loadSampleData();
+</script>
